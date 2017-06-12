@@ -3,14 +3,19 @@ var express = require('express'),
     fs      = require('fs'),
     app     = express(),
     eps     = require('ejs'),
-    morgan  = require('morgan');
+    morgan  = require('morgan'),
+    bodyParser = require('body-parser'),
+    server = require('http').Server(app),
+    io = require('socket.io')(server);
     
 Object.assign=require('object-assign')
 
 app.engine('html', require('ejs').renderFile);
-app.use(morgan('combined'))
+app.use(morgan('combined'));
+app.use(bodyParser.json());
+app.use(express.static('views'));
 
-var port = process.env.PORT || process.env.OPENSHIFT_NODEJS_PORT || 8080,
+var port = process.env.PORT || process.env.OPENSHIFT_NODEJS_PORT || 9002,
     ip   = process.env.IP   || process.env.OPENSHIFT_NODEJS_IP || '0.0.0.0',
     mongoURL = process.env.OPENSHIFT_MONGODB_DB_URL || process.env.MONGO_URL,
     mongoURLLabel = "";
@@ -89,6 +94,38 @@ app.get('/pagecount', function (req, res) {
   } else {
     res.send('{ pageCount: -1 }');
   }
+});
+
+io.on('connection', function (socket) {
+    app.post('/toggleBulb', function (req, res) {
+        var collection = db.collection('devices');
+
+        collection.updateOne({deviceName: req.body.deviceName}, {$set:{deviceStatus: req.body.deviceStatus}}).then(function (error, resultResp) {
+            socket.emit('switchToggle', req.body);
+            res.send();
+        });
+    });
+});
+
+app.post('/createNewDevice', function (req, res) {
+    var collection = db.collection('devices');
+
+    collection.insertOne(req.body).then(function (response) {
+        res.send();
+    });
+});
+
+app.get('/devicesStatus', function (req, res) {
+    var collection = db.collection('devices');
+
+    collection.find({}).toArray(function (err, items) {
+        if (err) {
+            res.send({error: 'Could not find'});
+            return;
+        }
+
+        res.send(items);
+    })
 });
 
 // error handling
