@@ -6,7 +6,7 @@ var express = require('express'),
     morgan  = require('morgan'),
     bodyParser = require('body-parser'),
     server = require('http').Server(app);
-   /* io = require('socket.io')(server);*/
+    io = require('socket.io')(server);
     
 Object.assign=require('object-assign')
 
@@ -15,7 +15,7 @@ app.use(morgan('combined'));
 app.use(bodyParser.json());
 app.use(express.static('views'));
 
-var port = process.env.PORT || process.env.OPENSHIFT_NODEJS_PORT || 8008,
+var port = process.env.PORT || process.env.OPENSHIFT_NODEJS_PORT || 8080,
     ip   = process.env.IP   || process.env.OPENSHIFT_NODEJS_IP || '0.0.0.0',
     mongoURL = process.env.OPENSHIFT_MONGODB_DB_URL || process.env.MONGO_URL,
     mongoURLLabel = "";
@@ -43,7 +43,9 @@ var db = null,
     dbDetails = new Object();
 
 var initDb = function(callback) {
-  if (mongoURL == null) return;
+  if (mongoURL == null) {
+      mongoURL = 'mongodb://localhost:27017/myproject';
+  };
 
   var mongodb = require('mongodb');
   if (mongodb == null) return;
@@ -96,7 +98,7 @@ app.get('/pagecount', function (req, res) {
   }
 });
 
-/*io.on('connection', function (socket) {
+io.on('connection', function (socket) {
     app.post('/toggleBulb', function (req, res) {
         var collection = db.collection('devices');
 
@@ -105,7 +107,7 @@ app.get('/pagecount', function (req, res) {
             res.send();
         });
     });
-});*/
+});
 
 app.post('/createNewDevice', function (req, res) {
     var collection = db.collection('devices');
