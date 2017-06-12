@@ -5,8 +5,8 @@ var express = require('express'),
     eps     = require('ejs'),
     morgan  = require('morgan'),
     bodyParser = require('body-parser'),
-    server = require('http').Server(app),
-    io = require('socket.io')(server);
+    server = require('http').Server(app);
+   /* io = require('socket.io')(server);*/
     
 Object.assign=require('object-assign')
 
@@ -96,7 +96,7 @@ app.get('/pagecount', function (req, res) {
   }
 });
 
-io.on('connection', function (socket) {
+/*io.on('connection', function (socket) {
     app.post('/toggleBulb', function (req, res) {
         var collection = db.collection('devices');
 
@@ -105,7 +105,7 @@ io.on('connection', function (socket) {
             res.send();
         });
     });
-});
+});*/
 
 app.post('/createNewDevice', function (req, res) {
     var collection = db.collection('devices');
@@ -138,7 +138,7 @@ initDb(function(err){
   console.log('Error connecting to Mongo. Message:\n'+err);
 });
 
-app.listen(port, ip);
+server.listen(port, ip);
 console.log('Server running on http://%s:%s', ip, port);
 
 module.exports = app ;
