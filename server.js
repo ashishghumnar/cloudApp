@@ -15,7 +15,7 @@ app.use(morgan('combined'));
 app.use(bodyParser.json());
 app.use(express.static('views'));
 
-var port = process.env.PORT || process.env.OPENSHIFT_NODEJS_PORT || 9002,
+var port = process.env.PORT || process.env.OPENSHIFT_NODEJS_PORT || 8008,
     ip   = process.env.IP   || process.env.OPENSHIFT_NODEJS_IP || '0.0.0.0',
     mongoURL = process.env.OPENSHIFT_MONGODB_DB_URL || process.env.MONGO_URL,
     mongoURLLabel = "";
