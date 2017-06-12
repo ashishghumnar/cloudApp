@@ -97,15 +97,18 @@ app.get('/pagecount', function (req, res) {
     res.send('{ pageCount: -1 }');
   }
 });
+var socketItem;
 
 io.on('connection', function (socket) {
-    app.post('/toggleBulb', function (req, res) {
-        var collection = db.collection('devices');
+    socketItem = socket;
+});
 
-        collection.updateOne({deviceName: req.body.deviceName}, {$set:{deviceStatus: req.body.deviceStatus}}).then(function (error, resultResp) {
-            socket.emit('switchToggle', req.body);
-            res.send();
-        });
+app.post('/toggleBulb', function (req, res) {
+    var collection = db.collection('devices');
+
+    collection.updateOne({deviceName: req.body.deviceName}, {$set:{deviceStatus: req.body.deviceStatus}}).then(function (error, resultResp) {
+        socketItem.emit('switchToggle', req.body);
+        res.send();
     });
 });
 
